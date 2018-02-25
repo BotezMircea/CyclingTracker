@@ -1,0 +1,25 @@
+<resources>
+    <!-- Buttons -->
+    <string name="create_activity_button">Start cycling</string>
+
+    <!-- Links-->
+    <string name="delete_cycling_activity">Delete</string>
+    <!-- Error messages -->
+    <string name="app_name">CyclingTracker</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm password</string>
+    <string name="text_login">Login</string>
+    <string name="text_not_member">No account yet? Create one</string>
+    <string name="text_register">Register</string>
+    <string name="text_member">Already a member? Login</string>
+    <string name="error_message_name">The name field is empty</string>
+    <string name="error_message_email">The email field is empty</string>
+    <string name="error_message_invalid_email">Please enter a valid email address</string>
+    <string name="error_message_password">The password field is empty</string>
+    <string name="error_password_match">The password does not match</string>
+    <string name="success_message">Your account has been created</string>
+    <string name="error_email_exists">The email already exists</string>
+    <string name="error_valid_email">The email does not exist in the database</string>
+</resources>
