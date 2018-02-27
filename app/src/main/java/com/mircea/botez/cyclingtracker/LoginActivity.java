@@ -14,7 +14,6 @@ import android.view.View;
 
 import com.mircea.botez.Exception.CustomException;
 import com.mircea.botez.helper.InputValidation;
-import com.mircea.botez.model.User;
 import com.mircea.botez.model.UserHelper;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
@@ -89,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         UserHelper userHelper = new UserHelper();
         try {
             if(userHelper.checkUserByEmailAndPassword(textInputEditTextEmail.getText().toString(), textInputEditTextPassword.getText().toString(), this)) {
-                Intent accountsIntent = new Intent(activity, UsersActivity.class);
+                Intent accountsIntent = new Intent(activity, CyclingActivitiesListActivity.class);
                 accountsIntent.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
                 emptyInputEditText();
                 startActivity(accountsIntent);

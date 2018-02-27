@@ -21,6 +21,10 @@ public class CyclingActivityHelper extends AbstractHelper {
         return getDao(context).loadAll();
     }
 
+    public void deleteCyclingActivity(Context context, long id) {
+        getDao(context).deleteByKey(id);
+    }
+
     @Override
     public AbstractDao getDao(Context context) {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "cycling_activities", null);

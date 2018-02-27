@@ -1,6 +1,9 @@
 package com.mircea.botez.cyclingtracker;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,14 +13,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mircea.botez.model.CyclingActivity;
 import com.mircea.botez.model.CyclingActivityHelper;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -25,22 +26,22 @@ import java.util.List;
  * Created by botez on 1/3/2018.
  */
 
-public class UsersActivity extends AppCompatActivity implements View.OnClickListener, ActionMode.Callback{
+public class CyclingActivitiesListActivity extends AppCompatActivity implements View.OnClickListener, ActionMode.Callback{
 
     private TextView textViewName;
 
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_users);
+//        setContentView(R.layout.cycling_activities_list_users);
 //
 //        textViewName = findViewById(R.id.text1);
 //        String nameFromIntent = getIntent().getStringExtra("EMAIL");
 //        textViewName.setText("Welcome" + nameFromIntent);
 //    }
-
+    private List<CyclingActivity> activities;
     protected Object mActionMode;
-    public int selectedItem = -1;
+    public Long selectedItem = -1L;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -51,7 +52,7 @@ public class UsersActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users);
+        setContentView(R.layout.cycling_activities_list_users);
 
         initViews();
         initListeners();
@@ -67,21 +68,18 @@ public class UsersActivity extends AppCompatActivity implements View.OnClickList
 
         // specify an adapter (see also next example)
         CyclingActivityHelper cyclingActivityHelper = new CyclingActivityHelper();
-        final List<CyclingActivity> activities = cyclingActivityHelper.getCyclingActivities(this);
-        mAdapter = new CustomAdapter(activities);
-
+        activities = cyclingActivityHelper.getCyclingActivities(this);
 
         mAdapter = new CustomAdapter(this, activities, new CustomItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 //Log.d(TAG, "clicked position:" + position);
-                long postId = activities.get(position).getId();
                 // do what ever you want to do with it
 
-                selectedItem = position;
+                selectedItem = activities.get(position).getId();
 
                 // Start the CAB using the ActionMode.Callback defined above
-                mActionMode = UsersActivity.this.startActionMode(UsersActivity.this);
+                mActionMode = CyclingActivitiesListActivity.this.startActionMode(CyclingActivitiesListActivity.this);
                 v.setSelected(true);
 
             }
@@ -107,11 +105,14 @@ public class UsersActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void createCyclingActivity() {
+        Intent accountsIntent = new Intent(this, CyclingAcActivity.class);
+        startActivity(accountsIntent);
+
         CyclingActivity activity = new CyclingActivity();
         activity.setStartTime(Calendar.getInstance().getTime());
         CyclingActivityHelper cyclingActivityHelper = new CyclingActivityHelper();
         cyclingActivityHelper.saveCyclingActivity(activity, this);
-//        activity.save();
+        //TODO: go to cycling activity
     }
 
     @Override
@@ -134,27 +135,54 @@ public class UsersActivity extends AppCompatActivity implements View.OnClickList
             case R.id.view_cycling_activity:
                 show();
                 // Action picked, so close the CAB
+                Intent accountsIntent = new Intent(this, CyclingAcViewerActivity.class);
+                startActivity(accountsIntent);
                 actionMode.finish();
                 return true;
             case R.id.delete_cycling_activity:
                 //show();
                 // Action picked, so close the CAB
-                actionMode.finish();
+                deleteCyclingActivity(actionMode);
+                //actionMode.finish();
                 return true;
             default:
                 return false;
         }
     }
 
-
-
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {
         mActionMode = null;
-        selectedItem = -1;
+        selectedItem = -1L;
+    }
+
+    private void deleteCyclingActivity(final ActionMode actionMode) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete")
+                .setMessage("Do you really want to delete the activity?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        CyclingActivityHelper cyclingActivityHelper = new CyclingActivityHelper();
+                        cyclingActivityHelper.deleteCyclingActivity(CyclingActivitiesListActivity.this, selectedItem);
+
+                        for(int i = 0; i < activities.size(); i++) {
+                            if (activities.get(i).getId().equals(selectedItem)) {
+                                activities.remove(i);
+                                mRecyclerView.removeViewAt(i);
+                                mAdapter.notifyItemRemoved(i);
+                                mAdapter.notifyItemRangeChanged(i, activities.size());
+                                mAdapter.notifyDataSetChanged();
+                                actionMode.finish();
+                            }
+                        }
+                        Toast.makeText(CyclingActivitiesListActivity.this, "The cycling activity was deleted" + " " + selectedItem, Toast.LENGTH_SHORT).show();
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
     }
 
     private void show() {
-        Toast.makeText(UsersActivity.this, String.valueOf(selectedItem), Toast.LENGTH_LONG).show();
+        Toast.makeText(CyclingActivitiesListActivity.this, String.valueOf(selectedItem), Toast.LENGTH_LONG).show();
     }
 }
